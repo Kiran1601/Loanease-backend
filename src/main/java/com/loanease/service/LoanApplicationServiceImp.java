@@ -12,11 +12,7 @@ public interface LoanApplicationServiceImp {
     LoanApplication updateStatus(Long id, String newStatus, String changedBy);
     LoanApplication getById(Long id);
     void deleteApplication(Long id);
-
     List<LoanApplication> getAllApplications();
-
-
     List<LoanStatusHistory> getStatusHistoryByApplicationId(Long applicationId);
-
     List<LoanStatusHistory> getAllStatusHistory();
 }

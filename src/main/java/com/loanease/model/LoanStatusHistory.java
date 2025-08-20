@@ -1,8 +1,6 @@
 package com.loanease.model;
 
 import jakarta.persistence.*;
-
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -17,6 +15,9 @@ public class LoanStatusHistory {
     private String oldStatus;
 
     private String newStatus;
+
+    public LoanStatusHistory(Long id, String oldStatus, String upperCase, String changedBy, LocalDateTime now) {
+    }
 
     public Long getId() {
         return id;
@@ -70,10 +71,8 @@ public class LoanStatusHistory {
 
     private LocalDateTime changedAt;
 
-    public LoanStatusHistory() {
-    }
-
-    public LoanStatusHistory(Long applicationId, String oldStatus, String newStatus, String changedBy, LocalDateTime changedAt) {
+    public LoanStatusHistory(Long id, Long applicationId, String oldStatus, String newStatus,  String changedBy, LocalDateTime changedAt) {
+        this.id = id;
         this.applicationId = applicationId;
         this.oldStatus = oldStatus;
         this.newStatus = newStatus;
@@ -81,6 +80,8 @@ public class LoanStatusHistory {
         this.changedAt = changedAt;
     }
 
+    public LoanStatusHistory() {
+    }
 
     @Override
     public String toString() {

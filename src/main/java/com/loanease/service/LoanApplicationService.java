@@ -7,7 +7,6 @@ import com.loanease.repository.LoanApplicationRepository;
 import com.loanease.repository.LoanStatusHistoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -55,11 +54,14 @@ public class LoanApplicationService implements LoanApplicationServiceImp {
                 newStatus.toUpperCase(),
                 changedBy,
                 LocalDateTime.now()
+
         );
 
         loanStatusHistoryRepository.save(history);
         return loanApplicationRepository.save(application);
     }
+
+
 
     @Override
     public LoanApplication getById(Long id) {
@@ -78,6 +80,7 @@ public class LoanApplicationService implements LoanApplicationServiceImp {
 
     @Override
     public List<LoanApplication> getAllApplications() {
+
         return loanApplicationRepository.findAll();
     }
 
@@ -87,6 +90,7 @@ public class LoanApplicationService implements LoanApplicationServiceImp {
     }
     @Override
     public List<LoanStatusHistory> getAllStatusHistory() {
+
         return loanStatusHistoryRepository.findAll();
     }
 

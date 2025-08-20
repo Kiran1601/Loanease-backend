@@ -1,6 +1,5 @@
 package com.loanease.controller;
 
-
 import com.loanease.exception.LoanApplicationNotFoundException;
 import com.loanease.model.LoanApplication;
 import com.loanease.model.LoanStatusHistory;
@@ -33,11 +32,31 @@ public class LoanApplicationController {
         return ResponseEntity.ok(list);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+ /*   @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/applicant/{email}")
     public ResponseEntity<List<LoanApplication>> getByEmail(@PathVariable String email){
         List<LoanApplication> list = service.getApplicationsByEmail(email);
         return ResponseEntity.ok(list);
+    }
+
+  */
+
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @GetMapping("/applicant/{email}")
+    public ResponseEntity<?> getApplicationsByEmail(@PathVariable String email, Authentication authentication) {
+        String userEmail = authentication.getName();
+
+        // Security check to ensure a user can only view their own applications
+        if (!authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")) &&
+                !email.equalsIgnoreCase(userEmail)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You do not have permission to view this user's applications.");
+        }
+        try {
+            List<LoanApplication> applications = service.getApplicationsByEmail(email);
+            return ResponseEntity.ok(applications);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving applications: " + e.getMessage());
+        }
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -89,18 +108,15 @@ public class LoanApplicationController {
         try {
             // Find the application by ID
             LoanApplication application = service.getById(applicationId);
-
             // Check if the user is an ADMIN or if the application belongs to the logged-in USER
             if (!authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")) &&
                     !application.getEmail().equalsIgnoreCase(userEmail)) {
                 // If not an admin and not the owner, deny access
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You do not have permission to view this application's status history.");
             }
-
             // Get the status history for the application
             List<LoanStatusHistory> history = service.getStatusHistoryByApplicationId(applicationId);
             return ResponseEntity.ok(history);
-
         } catch (LoanApplicationNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
@@ -112,6 +128,8 @@ public class LoanApplicationController {
         List<LoanStatusHistory> history = service.getAllStatusHistory();
         return ResponseEntity.ok(history);
     }
+
+
 }
 
 
