@@ -1,0 +1,47 @@
+.all-history-container {
+  max-width: 1000px;
+  margin: 50px auto;
+  padding: 30px;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+.all-history-container h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #ffa500;
+}
+
+.all-history-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.all-history-table th, .all-history-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.all-history-table thead th {
+  background-color: #dc3545; /* Admin-specific color */
+  color: white;
+  text-align: center;
+}
+
+.all-history-table tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.all-history-table tbody tr:hover {
+  background-color: #e0e0e0;
+}
+
+.error {
+  color: #d9534f;
+  text-align: center;
+}
