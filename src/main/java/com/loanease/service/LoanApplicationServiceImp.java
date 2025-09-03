@@ -1,8 +1,11 @@
 package com.loanease.service;
 
 import com.loanease.model.LoanApplication;
+import com.loanease.model.LoanDocument;
 import com.loanease.model.LoanStatusHistory;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface LoanApplicationServiceImp {
@@ -15,4 +18,10 @@ public interface LoanApplicationServiceImp {
     List<LoanApplication> getAllApplications();
     List<LoanStatusHistory> getStatusHistoryByApplicationId(Long applicationId);
     List<LoanStatusHistory> getAllStatusHistory();
+
+    LoanDocument uploadDocument(Long applicationId, MultipartFile file) throws IOException;
+
+    List<LoanDocument> getDocumentsByApplicationId(Long applicationId);
+
+    LoanDocument getDocumentById(Long docId);
 }

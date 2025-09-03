@@ -2,11 +2,16 @@ package com.loanease.service;
 
 import com.loanease.exception.LoanApplicationNotFoundException;
 import com.loanease.model.LoanApplication;
+import com.loanease.model.LoanDocument;
 import com.loanease.model.LoanStatusHistory;
 import com.loanease.repository.LoanApplicationRepository;
+import com.loanease.repository.LoanDocumentRepository;
 import com.loanease.repository.LoanStatusHistoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,6 +24,9 @@ public class LoanApplicationService implements LoanApplicationServiceImp {
 
     @Autowired
     private LoanStatusHistoryRepository loanStatusHistoryRepository;
+
+    @Autowired
+    private LoanDocumentRepository loanDocumentRepository;
 
     @Override
     public LoanApplication submitApplication(LoanApplication application) {
@@ -93,6 +101,50 @@ public class LoanApplicationService implements LoanApplicationServiceImp {
 
         return loanStatusHistoryRepository.findAll();
     }
+
+    @Override
+    public LoanDocument uploadDocument(Long applicationId, MultipartFile file) throws IOException {
+        LoanApplication application = loanApplicationRepository.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("Loan Application not found"));
+
+        // ✅ Step 1: Define allowed types
+        List<String> allowedTypes = List.of(
+                "application/pdf",
+                "image/png",
+                "image/jpeg",
+                "application/msword",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        );
+
+        // ✅ Step 2: Validate
+        if (!allowedTypes.contains(file.getContentType())) {
+            throw new IllegalArgumentException("Invalid file type: " + file.getContentType());
+        }
+
+        // ✅ Step 3: Save document
+        LoanDocument document = new LoanDocument();
+        document.setFileName(file.getOriginalFilename());
+        document.setFileType(file.getContentType());
+        document.setFileSize(file.getSize());
+        document.setData(file.getBytes());
+        document.setLoanApplication(application);
+
+        return loanDocumentRepository.save(document);
+    }
+
+    @Override
+    public List<LoanDocument> getDocumentsByApplicationId(Long applicationId) {
+        LoanApplication application = loanApplicationRepository.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("Loan Application not found"));
+        return loanDocumentRepository.findByLoanApplication(application);
+    }
+
+    @Override
+    public LoanDocument getDocumentById(Long docId) {
+        return loanDocumentRepository.findById(docId)
+                .orElseThrow(() -> new RuntimeException("Document not found with ID: " + docId));
+    }
+
 
 
 }

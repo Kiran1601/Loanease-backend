@@ -2,14 +2,19 @@ package com.loanease.controller;
 
 import com.loanease.exception.LoanApplicationNotFoundException;
 import com.loanease.model.LoanApplication;
+import com.loanease.model.LoanDocument;
 import com.loanease.model.LoanStatusHistory;
 import com.loanease.service.LoanApplicationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 
 @RestController
@@ -127,9 +132,36 @@ public class LoanApplicationController {
     public ResponseEntity<List<LoanStatusHistory>> getAllStatusHistory() {
         List<LoanStatusHistory> history = service.getAllStatusHistory();
         return ResponseEntity.ok(history);
+    } 
+
+    @PostMapping("/{id}/upload")
+    public ResponseEntity<?> uploadDocument(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
+        try {
+            LoanDocument savedDoc = service.uploadDocument(id, file);
+            return ResponseEntity.ok("File uploaded successfully: " + savedDoc.getFileName());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("File upload failed: " + e.getMessage());
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/{id}/documents")
+    public ResponseEntity<List<LoanDocument>> getDocuments(@PathVariable Long id) {
+        List<LoanDocument> documents = service.getDocumentsByApplicationId(id);
+        return ResponseEntity.ok(documents);
     }
 
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/documents/{docId}/download")
+    public ResponseEntity<byte[]> downloadDocument(@PathVariable Long docId) {
+        LoanDocument document = service.getDocumentById(docId);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + document.getFileName() + "\"")
+                .contentType(MediaType.parseMediaType(document.getFileType()))
+                .body(document.getData());
+    }
 }
 
 
